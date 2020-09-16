@@ -95,7 +95,7 @@ def worker(cfg, gpu_id, start_idx, end_idx, result_queue):
         batch_size=cfg.VAL.batch_size,
         shuffle=False,
         collate_fn=user_scattered_collate,
-        num_workers=2)
+        num_workers=os.cpu_count()) # TODO:
 
     # Network Builders
     net_encoder = ModelBuilder.build_encoder(

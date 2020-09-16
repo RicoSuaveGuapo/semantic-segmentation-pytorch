@@ -39,6 +39,10 @@ class BaseDataset(torch.utils.data.Dataset):
         if isinstance(odgt, list):
             self.list_sample = odgt
         elif isinstance(odgt, str):
+            # TODO:
+            # This line takes the both images and annotation path inputs
+            # format: [{"fpath_img": "path/to/.jpg", "fpath_segm": "path/to/.png", 
+            # "width": 683, "height": 512}, ...]
             self.list_sample = [json.loads(x.rstrip()) for x in open(odgt, 'r')]
 
         if max_sample > 0:
@@ -46,7 +50,7 @@ class BaseDataset(torch.utils.data.Dataset):
         if start_idx >= 0 and end_idx >= 0:     # divide file list
             self.list_sample = self.list_sample[start_idx:end_idx]
 
-        self.num_sample = len(self.list_sample)
+        self.num_sample = len(self.list_sample) # TODO: count the total samples
         assert self.num_sample > 0
         print('# samples: {}'.format(self.num_sample))
 
@@ -67,15 +71,22 @@ class BaseDataset(torch.utils.data.Dataset):
         return ((x - 1) // p + 1) * p
 
 
+# --- TrainDataset Usage ---
+# dataset_train = TrainDataset(
+#         root_dataset = cfg.DATASET.root_dataset,
+#         odgt = cfg.DATASET.list_train,
+#         opt = cfg.DATASET,
+#         batch_per_gpu=cfg.TRAIN.batch_size_per_gpu)
 class TrainDataset(BaseDataset):
     def __init__(self, root_dataset, odgt, opt, batch_per_gpu=1, **kwargs):
         super(TrainDataset, self).__init__(odgt, opt, **kwargs)
         self.root_dataset = root_dataset
-        # down sampling rate of segm labe
+        # down sampling rate of segm label
         self.segm_downsampling_rate = opt.segm_downsampling_rate
         self.batch_per_gpu = batch_per_gpu
 
-        # classify images into two classes: 1. h > w and 2. h <= w
+        # classify images into two classes by their h and w size: (1) h > w and (2) h <= w
+        # and append the dictionaries of data into these two lists.
         self.batch_record_list = [[], []]
 
         # override dataset length when trainig with batch_per_gpu > 1
@@ -85,7 +96,9 @@ class TrainDataset(BaseDataset):
     def _get_sub_batch(self):
         while True:
             # get a sample record
-            this_sample = self.list_sample[self.cur_idx]
+            this_sample = self.list_sample[self.cur_idx] # TODO: read in the data
+
+            # put data into the `batch_record_list`
             if this_sample['height'] > this_sample['width']:
                 self.batch_record_list[0].append(this_sample) # h > w, go to 1st class
             else:
@@ -154,12 +167,17 @@ class TrainDataset(BaseDataset):
             this_record = batch_records[i]
 
             # load image and label
-            image_path = os.path.join(self.root_dataset, this_record['fpath_img'])
-            segm_path = os.path.join(self.root_dataset, this_record['fpath_segm'])
+            # TODO: custom to my dataset
+            # image_path = os.path.join(self.root_dataset, this_record['fpath_img'])
+            # segm_path = os.path.join(self.root_dataset, this_record['fpath_segm'])
+            image_path = this_record['fpath_img']
+            segm_path = this_record['fpath_segm']
 
             img = Image.open(image_path).convert('RGB')
             segm = Image.open(segm_path)
             assert(segm.mode == "L")
+            # TODO:
+            # L mode: Luminance. only greyscale
             assert(img.size[0] == segm.size[0])
             assert(img.size[1] == segm.size[1])
 

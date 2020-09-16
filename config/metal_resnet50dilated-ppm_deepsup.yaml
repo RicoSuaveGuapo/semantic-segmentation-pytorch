@@ -1,10 +1,10 @@
 DATASET:
   root_dataset: "./data/"
-  list_train: "./data/training.odgt"
-  list_val: "./data/validation.odgt"
-  num_class: 150
+  list_train: "./data/metal_training.odgt"
+  list_val: "./data/metal_validation.odgt"
+  num_class: 2
   imgSizes: (300, 375, 450, 525, 600)
-  imgMaxSize: 300 #TODO: original 1000
+  imgMaxSize: 300 
   padding_constant: 8
   segm_downsampling_rate: 8
   random_flip: True
@@ -16,9 +16,9 @@ MODEL:
 
 TRAIN:
   batch_size_per_gpu: 2
-  num_epoch: 20
+  num_epoch: 1
   start_epoch: 0
-  epoch_iters: 5000
+  epoch_iters: 10
   optim: "SGD"
   lr_encoder: 0.02
   lr_decoder: 0.02
@@ -33,10 +33,10 @@ TRAIN:
 
 VAL:
   visualize: True # the result will be saved in .png
-  checkpoint: "epoch_20.pth"
+  checkpoint: "epoch_1.pth"
 
 TEST:
-  checkpoint: "epoch_20.pth"
+  checkpoint: "epoch_1.pth"
   result: "./"
 
 DIR: "ckpt/ade20k-resnet50dilated-ppm_deepsup"

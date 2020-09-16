@@ -16,6 +16,11 @@ from mit_semseg.utils import AverageMeter, parse_devices, setup_logger
 from mit_semseg.lib.nn import UserScatteredDataParallel, user_scattered_collate, patch_replication_callback
 
 
+
+# train(segmentation_module, iterator_train, optimizers, history, epoch+1, cfg)
+# iterator_train: iter of DataLoader
+# optimizers: tuple of (optimizer_encoder, optimizer_decoder)
+# history: in the format of {'train': {'epoch': [], 'loss': [], 'acc': []}}
 # train one epoch
 def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
     batch_time = AverageMeter()
@@ -29,6 +34,8 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
     tic = time.time()
     for i in range(cfg.TRAIN.epoch_iters):
         # load a batch of data
+        # data is in the format
+        # {'img_data':batch_images, 'seg_label':batch_segms}
         batch_data = next(iterator)
         data_time.update(time.time() - tic)
         segmentation_module.zero_grad()
@@ -170,7 +177,7 @@ def main(cfg, gpus):
     loader_train = torch.utils.data.DataLoader(
         dataset_train,
         batch_size=len(gpus),  # we have modified data_parallel
-        shuffle=False,  # we do not use this param
+        shuffle=False,         # we do not use this param
         collate_fn=user_scattered_collate,
         num_workers=cfg.TRAIN.workers,
         drop_last=True,
@@ -198,6 +205,9 @@ def main(cfg, gpus):
 
     for epoch in range(cfg.TRAIN.start_epoch, cfg.TRAIN.num_epoch):
         train(segmentation_module, iterator_train, optimizers, history, epoch+1, cfg)
+        # iterator_train: iter of DataLoader
+        # optimizers: tuple of (optimizer_encoder, optimizer_decoder)
+        # history: in the format of {'train': {'epoch': [], 'loss': [], 'acc': []}}
 
         # checkpointing
         checkpoint(nets, history, cfg, epoch+1)
