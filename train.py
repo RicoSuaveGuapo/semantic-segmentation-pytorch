@@ -281,3 +281,10 @@ if __name__ == '__main__':
     torch.manual_seed(cfg.TRAIN.seed)
 
     main(cfg, gpus)
+
+
+# code snippet
+# to train
+# python3 train.py --gpus 1 --cfg config/metal_resnet50dilated-ppm_deepsup.yaml
+# to eval
+# python3 eval_multipro.py --gpus 0 --cfg config/metal_resnet50dilated-ppm_deepsup.yaml

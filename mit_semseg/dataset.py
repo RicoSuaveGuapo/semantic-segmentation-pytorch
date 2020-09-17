@@ -4,6 +4,7 @@ import torch
 from torchvision import transforms
 import numpy as np
 from PIL import Image
+import ast
 
 
 def imresize(im, size, interp='bilinear'):
@@ -43,7 +44,11 @@ class BaseDataset(torch.utils.data.Dataset):
             # This line takes the both images and annotation path inputs
             # format: [{"fpath_img": "path/to/.jpg", "fpath_segm": "path/to/.png", 
             # "width": 683, "height": 512}, ...]
+            # original
             self.list_sample = [json.loads(x.rstrip()) for x in open(odgt, 'r')]
+            # the modification is to change the single quote which in json is not work to 
+            # double quotes
+            # self.list_sample = [ast.literal_eval(json.dumps(x.rstrip())) for x in open(odgt, 'r')]
 
         if max_sample > 0:
             self.list_sample = self.list_sample[0:max_sample]
@@ -96,8 +101,8 @@ class TrainDataset(BaseDataset):
     def _get_sub_batch(self):
         while True:
             # get a sample record
-            this_sample = self.list_sample[self.cur_idx] # TODO: read in the data
-
+            this_sample = self.list_sample[self.cur_idx] 
+            # TODO: read in the data
             # put data into the `batch_record_list`
             if this_sample['height'] > this_sample['width']:
                 self.batch_record_list[0].append(this_sample) # h > w, go to 1st class
@@ -174,10 +179,10 @@ class TrainDataset(BaseDataset):
             segm_path = this_record['fpath_segm']
 
             img = Image.open(image_path).convert('RGB')
-            segm = Image.open(segm_path)
-            assert(segm.mode == "L")
             # TODO:
             # L mode: Luminance. only greyscale
+            segm = Image.open(segm_path).convert('L')
+            assert(segm.mode == "L")
             assert(img.size[0] == segm.size[0])
             assert(img.size[1] == segm.size[1])
 
@@ -232,7 +237,7 @@ class ValDataset(BaseDataset):
         image_path = os.path.join(self.root_dataset, this_record['fpath_img'])
         segm_path = os.path.join(self.root_dataset, this_record['fpath_segm'])
         img = Image.open(image_path).convert('RGB')
-        segm = Image.open(segm_path)
+        segm = Image.open(segm_path).convert('L')
         assert(segm.mode == "L")
         assert(img.size[0] == segm.size[0])
         assert(img.size[1] == segm.size[1])
