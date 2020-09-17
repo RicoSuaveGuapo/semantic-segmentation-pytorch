@@ -33,7 +33,7 @@ TRAIN:
 
 VAL:
   visualize: True # the result will be saved in .png
-  checkpoint: "epoch_1.pth"
+  checkpoint: "epoch_3.pth"
 
 TEST:
   checkpoint: "epoch_1.pth"

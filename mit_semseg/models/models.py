@@ -9,6 +9,8 @@ class SegmentationModuleBase(nn.Module):
     def __init__(self):
         super(SegmentationModuleBase, self).__init__()
 
+    # TODO:
+    # The definition of accuracy
     def pixel_acc(self, pred, label):
         _, preds = torch.max(pred, dim=1)
         valid = (label >= 0).long()

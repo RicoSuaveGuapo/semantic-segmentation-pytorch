@@ -19,6 +19,7 @@ from mit_semseg.lib.utils import as_numpy
 from PIL import Image
 from tqdm import tqdm
 
+# TODO: Need to modified
 colors = loadmat('data/color150.mat')['colors']
 
 
