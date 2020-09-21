@@ -66,7 +66,7 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
         if i % cfg.TRAIN.disp_iter == 0:
             print('Epoch: [{}][{}/{}], Time: {:.2f}, Data: {:.2f}, '
                   'lr_encoder: {:.6f}, lr_decoder: {:.6f}, '
-                  'Accuracy: {:4.2f}, Loss: {:.6f}'
+                  'Accuracy: {:4.6f}, Loss: {:.6f}'
                   .format(epoch, i, cfg.TRAIN.epoch_iters,
                           batch_time.average(), data_time.average(),
                           cfg.TRAIN.running_lr_encoder, cfg.TRAIN.running_lr_decoder,
@@ -158,8 +158,9 @@ def main(cfg, gpus):
         num_class=cfg.DATASET.num_class,
         weights=cfg.MODEL.weights_decoder)
     # TODO: modified the loss
+    # the background is labeled as -1, and it is included in the calculation.
     # crit = nn.NLLLoss(ignore_index=-1)
-    crit = nn.CrossEntropyLoss()
+    crit = nn.CrossEntropyLoss(ignore_index=-1)
     
 
     if cfg.MODEL.arch_decoder.endswith('deepsup'):

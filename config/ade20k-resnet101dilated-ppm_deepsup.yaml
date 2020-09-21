@@ -4,7 +4,7 @@ DATASET:
   list_val: "./data/validation.odgt"
   num_class: 150
   imgSizes: (300, 375, 450, 525, 600)
-  imgMaxSize: 1000
+  imgMaxSize: 600
   padding_constant: 8
   segm_downsampling_rate: 8
   random_flip: True
@@ -16,7 +16,7 @@ MODEL:
 
 TRAIN:
   batch_size_per_gpu: 2
-  num_epoch: 25
+  num_epoch: 5
   start_epoch: 0
   epoch_iters: 5000
   optim: "SGD"

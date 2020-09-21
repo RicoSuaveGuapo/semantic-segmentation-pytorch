@@ -13,9 +13,19 @@ class SegmentationModuleBase(nn.Module):
     # The definition of accuracy
     def pixel_acc(self, pred, label):
         _, preds = torch.max(pred, dim=1)
+        # TODO:
+        # ignore 0, original label => 0
         valid = (label >= 0).long()
         acc_sum = torch.sum(valid * (preds == label).long())
         pixel_sum = torch.sum(valid)
+        # TODO: label show 74 and 37, which is not allowed
+        # background is labeled with -1 which is ignored
+        # label_show = torch.unique(label)
+        # print('label_show', label_show)
+        # print('preds',preds)
+        # print('label',label)
+        # print('pixel_sum',pixel_sum)
+        # print('acc_sum',acc_sum)
         acc = acc_sum.float() / (pixel_sum.float() + 1e-10)
         return acc
 

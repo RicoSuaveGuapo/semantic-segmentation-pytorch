@@ -4,10 +4,10 @@ DATASET:
   list_val: "./data/metal_validation.odgt"
   num_class: 2
   imgSizes: (300, 375, 450, 525, 600)
-  imgMaxSize: 300 # this might cause problem
+  imgMaxSize: 450 # this might cause problem
   padding_constant: 8
   segm_downsampling_rate: 8
-  random_flip: True
+  random_flip: False
 
 MODEL:
   arch_encoder: "resnet50dilated"
@@ -16,7 +16,7 @@ MODEL:
 
 TRAIN:
   batch_size_per_gpu: 2
-  num_epoch: 5
+  num_epoch: 1
   start_epoch: 0
   epoch_iters: 5000
   optim: "SGD"
@@ -33,7 +33,7 @@ TRAIN:
 
 VAL:
   visualize: True # the result will be saved in .png
-  checkpoint: "epoch_3.pth"
+  checkpoint: "epoch_1.pth"
 
 TEST:
   checkpoint: "epoch_1.pth"

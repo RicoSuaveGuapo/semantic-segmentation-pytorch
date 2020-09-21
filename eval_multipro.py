@@ -19,9 +19,9 @@ from mit_semseg.lib.utils import as_numpy
 from PIL import Image
 from tqdm import tqdm
 
-# TODO: Need to modified
+# color150.mat is solely for visualization
+# a ndarray with shape (150,3)
 colors = loadmat('data/color150.mat')['colors']
-
 
 def visualize_result(data, pred, dir_result):
     (img, seg, info) = data

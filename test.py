@@ -22,9 +22,11 @@ colors = loadmat('data/color150.mat')['colors']
 names = {}
 with open('data/object150_info.csv') as f:
     reader = csv.reader(f)
-    next(reader)
+    next(reader) # used to escape the title row of csv
     for row in reader:
         names[int(row[0])] = row[5].split(";")[0]
+    # names
+    # {1: 'wall', 2: 'building', etc}
 
 
 def visualize_result(data, pred, cfg):

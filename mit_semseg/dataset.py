@@ -5,7 +5,7 @@ from torchvision import transforms
 import numpy as np
 from PIL import Image
 import ast
-
+import matplotlib.pyplot as plt
 
 def imresize(im, size, interp='bilinear'):
     if interp == 'nearest':
@@ -46,9 +46,6 @@ class BaseDataset(torch.utils.data.Dataset):
             # "width": 683, "height": 512}, ...]
             # original
             self.list_sample = [json.loads(x.rstrip()) for x in open(odgt, 'r')]
-            # the modification is to change the single quote which in json is not work to 
-            # double quotes
-            # self.list_sample = [ast.literal_eval(json.dumps(x.rstrip())) for x in open(odgt, 'r')]
 
         if max_sample > 0:
             self.list_sample = self.list_sample[0:max_sample]
@@ -67,8 +64,18 @@ class BaseDataset(torch.utils.data.Dataset):
         return img
 
     def segm_transform(self, segm):
-        # to tensor, -1 to 149
-        segm = torch.from_numpy(np.array(segm)).long() - 1
+        # to tensor, -1 to 149 for the default dataset
+        # for ours, -1 background, 0 and 1 for classes
+        # the segm input format is (0, 38, 75)
+        # we need to change it to (-1, 0, 1)
+        segm = np.array(segm)
+        segm = np.where(segm==0, -1, segm)
+        segm = np.where(segm==38, 0, segm)
+        segm = np.where(segm==75, 1, segm)
+        # print(np.unique(segm))
+        # Original
+        # segm = torch.from_numpy(segm).long() - 1
+        segm = torch.from_numpy(segm).long()
         return segm
 
     # Round x to the nearest multiple of p and x' >= x
@@ -172,16 +179,16 @@ class TrainDataset(BaseDataset):
             this_record = batch_records[i]
 
             # load image and label
-            # TODO: custom to my dataset
             image_path = os.path.join(self.root_dataset, this_record['fpath_img'])
             segm_path = os.path.join(self.root_dataset, this_record['fpath_segm'])
-            # image_path = this_record['fpath_img']
-            # segm_path = this_record['fpath_segm']
 
             img = Image.open(image_path).convert('RGB')
             # TODO:
             # L mode: Luminance. only greyscale
+            # the loadin datafromat is (0, 38, 75)
             segm = Image.open(segm_path).convert('L')
+            # segm_np = np.array(segm)
+            # print(np.unique(segm_np))
             assert(segm.mode == "L")
             assert(img.size[0] == segm.size[0])
             assert(img.size[1] == segm.size[1])
@@ -190,6 +197,23 @@ class TrainDataset(BaseDataset):
             if np.random.choice([0, 1]):
                 img = img.transpose(Image.FLIP_LEFT_RIGHT)
                 segm = segm.transpose(Image.FLIP_LEFT_RIGHT)
+
+            # TODO:
+            # check the readin
+            # segm.save('example_seg.png')
+            # img.save('example_img.png')
+            # resize image
+            _, h = segm.size   
+            left = 0
+            top = 70
+            right = 700
+            bottom = h
+            segm = segm.crop((left, top, right, bottom))
+            img = img.crop((left, top, right, bottom))
+            
+            # check the resize
+            # segm.save('example_seg_resize.png')
+            # img.save('example_img_resize.png')
 
             # note that each sample within a mini batch has different scale param
             img = imresize(img, (batch_widths[i], batch_heights[i]), interp='bilinear')
@@ -205,6 +229,10 @@ class TrainDataset(BaseDataset):
                 (segm_rounded.size[0] // self.segm_downsampling_rate, \
                  segm_rounded.size[1] // self.segm_downsampling_rate), \
                 interp='nearest')
+
+            # check their resize
+            # segm.save('example_seg_custom_resize.png')
+            # img.save('example_img_custom_resize.png')
 
             # image transform, to torch float tensor 3xHxW
             img = self.img_transform(img)
