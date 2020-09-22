@@ -69,9 +69,9 @@ class BaseDataset(torch.utils.data.Dataset):
         # the segm input format is (0, 38, 75)
         # we need to change it to (-1, 0, 1)
         segm = np.array(segm)
-        segm = np.where(segm==0, -1, segm)
-        segm = np.where(segm==38, 0, segm)
-        segm = np.where(segm==75, 1, segm)
+        # segm = np.where(segm==0, -1, segm)
+        segm = np.where(segm==38, 1, segm)
+        segm = np.where(segm==75, 2, segm)
         # print(np.unique(segm))
         # Original
         # segm = torch.from_numpy(segm).long() - 1

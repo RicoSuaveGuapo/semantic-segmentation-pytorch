@@ -126,7 +126,10 @@ def colorEncode(labelmap, colors, mode='RGB'):
 
 
 def accuracy(preds, label):
-    valid = (label >= 0)
+    # TODO:
+    # Original
+    # valid = (label >= 0)
+    valid = (label > 0)
     acc_sum = (valid * (preds == label)).sum()
     valid_sum = valid.sum()
     acc = float(acc_sum) / (valid_sum + 1e-10)

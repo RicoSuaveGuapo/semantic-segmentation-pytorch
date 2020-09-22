@@ -15,7 +15,7 @@ class SegmentationModuleBase(nn.Module):
         _, preds = torch.max(pred, dim=1)
         # TODO:
         # ignore 0, original label => 0
-        valid = (label >= 0).long()
+        valid = (label > 0).long()
         acc_sum = torch.sum(valid * (preds == label).long())
         pixel_sum = torch.sum(valid)
         # TODO: label show 74 and 37, which is not allowed

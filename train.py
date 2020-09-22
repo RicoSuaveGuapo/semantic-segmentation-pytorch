@@ -159,8 +159,8 @@ def main(cfg, gpus):
         weights=cfg.MODEL.weights_decoder)
     # TODO: modified the loss
     # the background is labeled as -1, and it is included in the calculation.
-    # crit = nn.NLLLoss(ignore_index=-1)
-    crit = nn.CrossEntropyLoss(ignore_index=-1)
+    crit = nn.NLLLoss(ignore_index=-1)
+    # crit = nn.CrossEntropyLoss(ignore_index=-1)
     
 
     if cfg.MODEL.arch_decoder.endswith('deepsup'):
@@ -283,8 +283,14 @@ if __name__ == '__main__':
     random.seed(cfg.TRAIN.seed)
     torch.manual_seed(cfg.TRAIN.seed)
 
-    main(cfg, gpus)
-
+    start_time = time.time()
+    main(cfg, gpus)   
+    print('--- Execution time ---')
+    exe_time = (time.time() - start_time)
+    hr = int(exe_time // 3600)
+    min = int(((exe_time / 3600) - hr) * 60)
+    sec = ((((exe_time / 3600) - hr) * 60) - min)*60
+    print(f'--- {hr}:{min}:{sec:.1f} (hr:min:sec)---')
 
 # code snippet
 # to train
